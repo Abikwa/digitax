@@ -159,7 +159,7 @@ const About = ({ navigation }) => {
                 <TouchableOpacity style={styles.button_} onPress={() => { navigation.replace(
                   "template", { Profile : Profile, Name : Name, Tel : Tel, Avatar : Avatar, Branche : Branche }
                   ); setAutoplay(false) }}>
-                  <Text style={styles.buttonText}>{Name?.slice(0, 4)} Commencez</Text>
+                  <Text style={styles.buttonText}>{Name?.slice(0, 4)}, Commencez</Text>
                 </TouchableOpacity>
               :  
                 <TouchableOpacity style={styles.button_} onPress={() => { setModalVisible(true); setAutoplay(false) }}>
