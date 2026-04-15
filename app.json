@@ -25,14 +25,13 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.abikwa.evivesomastat"
+      "package": "com.abikwa.digitax"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "b7756662-0c57-4fab-bd4d-c5c7e03ec346"
       }
     },
     "plugins": [
