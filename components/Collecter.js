@@ -32,7 +32,7 @@ const Collecter = () => {
 
       setStand(text);
       try{
-        const DB_SQL = await SQLite.openDatabaseAsync("digitax.db");
+        const DB_SQL = await SQLite.openDatabaseAsync("digitax.db", { useNewConnection: true });
 
         if (text.length % 2 != 0) {
           setStandResults([]);
@@ -65,7 +65,7 @@ const Collecter = () => {
         setCurrentData({})
         
         try{
-          const DB_SQL = await SQLite.openDatabaseAsync("digitax.db");
+          const DB_SQL = await SQLite.openDatabaseAsync("digitax.db", { useNewConnection: true });
           
           const id = uuidv4()
           const date = new Date().toISOString();

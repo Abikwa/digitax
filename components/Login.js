@@ -28,7 +28,7 @@ const Login = ({ navigation }) => {
 
           if(Name && Tel && Adress){
 
-            const DB_SQL = await SQLite.openDatabaseAsync("digitax.db");
+            const DB_SQL = await SQLite.openDatabaseAsync("digitax.db", { useNewConnection: true });
             const first = await DB_SQL.getFirstAsync("SELECT name FROM sqlite_master WHERE type='table' AND name='table_users'")
             
             if(!first){
