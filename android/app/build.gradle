@@ -109,9 +109,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.abikwa.evivesomastat'
+    namespace 'com.abikwa.digitax'
     defaultConfig {
-        applicationId 'com.abikwa.evivesomastat'
+        applicationId 'com.abikwa.digitax'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

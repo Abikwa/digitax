@@ -1,4 +1,4 @@
-package com.abikwa.evivesomastat
+package com.abikwa.digitax
 
 import android.app.Application
 import android.content.res.Configuration
