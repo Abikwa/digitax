@@ -112,10 +112,23 @@ const Recette = () => {
           
           if(DB_SQL){
             const result = await DB_SQL.getAllAsync(
-              `SELECT * FROM table_taxes 
-              WHERE createdAt BETWEEN ? AND ?`,
+              `SELECT 
+                table_taxes.id,
+                table_taxes.price,
+                table_taxes.createdAt,
+                table_taxes.status,
+                table_taxes.numero,
+                table_taxes.contribuantId,
+                table_users.name
+              FROM table_taxes
+              INNER JOIN table_users 
+              ON table_taxes.contribuantId = table_users.id
+              WHERE table_taxes.createdAt BETWEEN ? AND ? 
+              ORDER BY table_taxes.createdAt DESC`,
               [start.toISOString(), end.toISOString()]
             );
+            
+            console.log(result);
             
             let dataArray = Recettes
             let index = dataArray.findIndex(purchase => purchase.id == firstDate?.toLocaleDateString("en-GB"))
