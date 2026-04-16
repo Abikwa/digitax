@@ -114,8 +114,8 @@ const ListInvoice = ({ item, DeletedP = 0 }) => {
                   </View>
                   <View style={{ marginStart : 10 }}>
                     <Text style={style_s.cardTitle}><Text style={{ fontSize : 18, fontWeight : "600"}}>{ item?.price?.toLocaleString()} FC</Text></Text>
-                    <Text style={{...style_s.cardTitle, fontSize : 9, marginBottom : 1}}><MaterialIcons name='account-tree' size={10} /> Réf : <Text style={{ fontWeight : "800"}}>{ item?.id?.slice(0, 5)?.toUpperCase() }</Text></Text>
-                    <Text style={{...style_s.cardTitle, fontSize : 9, marginBottom : 1}}><MaterialIcons name='description' size={10} /> Num. : <Text style={{ fontWeight : "800"}}>{ item?.contribuantId }</Text></Text>
+                    <Text style={{...style_s.cardTitle, fontSize : 9, marginBottom : 1}}><MaterialIcons name='account-tree' size={10} /> Référence : <Text style={{ fontWeight : "800"}}>{ item?.id?.slice(0, 5)?.toUpperCase() }</Text></Text>
+                    <Text style={{...style_s.cardTitle, fontSize : 9, marginBottom : 1}}><MaterialIcons name='description' size={10} /> N° Stand ou Plaque : <Text style={{ fontWeight : "800"}}>{ item?.contribuantId }</Text></Text>
                     <View style={{ flexDirection : "row", justifyContent : 'space-between', width : "92%"}}>
                       <Text style={{...style_s.cardTitle, fontSize : 9, marginBottom : 1}}><MaterialIcons name='person' size={10} /> Contribuable : <Text style={{ fontWeight : "800"}}>Alex bat</Text></Text>
                       {item.status == 1 ? (
@@ -171,7 +171,7 @@ const ListInvoice = ({ item, DeletedP = 0 }) => {
                   
                   <View style={style_s.DigActions}>
                     <View>
-                      <View><Text style={{ fontSize: 12 }}>Date </Text></View>
+                      <View><Text style={{ fontSize: 12 }}>Date opération</Text></View>
                       <View><Text style={{ fontSize : 12, fontWeight : "800"}}>{ new Date(item?.createdAt)?.toLocaleDateString("en-GB")} _ {new Date(item?.createdAt)?.getHours()}h:{new Date(item?.createdAt)?.getMinutes()}</Text></View>
                     </View>
                     <View>
@@ -181,7 +181,7 @@ const ListInvoice = ({ item, DeletedP = 0 }) => {
 
                   <View style={style_s.DigActions}>
                     <View>
-                      <View><Text style={{ fontSize: 12 }}>Réf </Text></View>
+                      <View><Text style={{ fontSize: 12 }}>Référence </Text></View>
                       <View><Text style={{ fontSize : 12, fontWeight : "800"}}>{item?.id?.toUpperCase()?.slice(0, 13)}</Text></View>
                     </View>
                     <View>
