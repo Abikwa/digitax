@@ -43,7 +43,7 @@ const Collecter = () => {
           `SELECT DISTINCT numero FROM table_users WHERE numero LIKE ? LIMIT 5`,
           [`%${text}%`]
         );
-        // setStandResults(result);
+        setStandResults(result);
 
       }catch(err){
         Alert.alert('ERROR',err); 
@@ -70,11 +70,11 @@ const Collecter = () => {
           const id = uuidv4()
           const date = new Date().toISOString();
 
-          await DB_SQL.runAsync("INSERT OR REPLACE INTO table_taxes (id, contribuantId, price, createdAt) values (?, ?, ?, ?)", id, stand, parseFloat(montant), date);
+          await DB_SQL.runAsync("INSERT OR REPLACE INTO table_taxes (id, contribuantId, price, createdAt) values (?, ?, ?, ?)", id, stand?.toUpperCase(), parseFloat(montant), date);
           
           setCurrentData({
             id: id,
-            stand,
+            stand : stand?.toUpperCase(),
             responsable,
             montant,
             date
@@ -221,7 +221,7 @@ const Collecter = () => {
                             
                             <View style={styles.DigActions}>
                               <View>
-                                <View><Text style={{ fontSize: 12 }}>Date </Text></View>
+                                <View><Text style={{ fontSize: 12 }}>Date opération</Text></View>
                                 <View><Text style={{ fontSize : 12, fontWeight : "800"}}>{ new Date(currentData?.date)?.toLocaleDateString("en-GB")} _ {new Date(currentData?.date)?.getHours()}h:{new Date(currentData?.date)?.getMinutes()}</Text></View>
                               </View>
                               <View>
@@ -231,7 +231,7 @@ const Collecter = () => {
 
                             <View style={styles.DigActions}>
                               <View>
-                                <View><Text style={{ fontSize: 12 }}>Réf </Text></View>
+                                <View><Text style={{ fontSize: 12 }}>Référence </Text></View>
                                 <View><Text style={{ fontSize : 12, fontWeight : "800"}}>{currentData?.id?.toUpperCase()?.slice(0, 13)}</Text></View>
                               </View>
                               <View>
