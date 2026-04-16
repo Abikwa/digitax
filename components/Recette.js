@@ -224,18 +224,17 @@ const Recette = () => {
             <TextInput  
               label='N° STAND OU PLAQUE' 
               mode="outlined"
-              left={<TextInput.Icon icon="account-circle" size={15} />}
+              left={<TextInput.Icon icon="file" color={"red"} size={15} />}
               activeOutlineColor="rgb(244, 53, 53)"
               outlineColor="#ccc"
-
-              style={{  width : (width * 70)/100, backgroundColor : "rgb(254, 254, 254)", height : 40, fontSize : 13, borderColor : "#ccc", borderRadius : 13 }} 
+              style={{  width : (width * 70)/100, backgroundColor : "rgb(254, 254, 254)", height : 40, fontSize : 13, borderColor : "#ccc", borderRadius : 13  }} 
               defaultValue={ SearchData }
               onChangeText={ async (val) => { 
                 setSearchData(val);
               }} />
                
               <TouchableOpacity style={{ ...Styles.addButton_,  }} onPress={ () => { getSearchInvoice() }}>
-                <Text style={{ ...Styles.addButtonText, fontSize : 12, padding : 7}}>Rechercher</Text>
+                <Text style={{ ...Styles.addButtonText, fontSize : 12, padding : 10 }}>Rechercher</Text>
               </TouchableOpacity>
             
           </View>
