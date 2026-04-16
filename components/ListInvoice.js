@@ -115,9 +115,9 @@ const ListInvoice = ({ item, DeletedP = 0 }) => {
                   <View style={{ marginStart : 10 }}>
                     <Text style={style_s.cardTitle}><Text style={{ fontSize : 18, fontWeight : "600"}}>{ item?.price?.toLocaleString()} FC</Text></Text>
                     <Text style={{...style_s.cardTitle, fontSize : 9, marginBottom : 1}}><MaterialIcons name='account-tree' size={10} /> Référence : <Text style={{ fontWeight : "800"}}>{ item?.id?.slice(0, 5)?.toUpperCase() }</Text></Text>
-                    <Text style={{...style_s.cardTitle, fontSize : 9, marginBottom : 1}}><MaterialIcons name='description' size={10} /> N° Stand ou Plaque : <Text style={{ fontWeight : "800"}}>{ item?.contribuantId }</Text></Text>
+                    <Text style={{...style_s.cardTitle, fontSize : 9, marginBottom : 1}}><MaterialIcons name='description' size={10} /> N° Stand ou Plaque : <Text style={{ fontWeight : "800"}}>{ item?.numero }</Text></Text>
                     <View style={{ flexDirection : "row", justifyContent : 'space-between', width : "92%"}}>
-                      <Text style={{...style_s.cardTitle, fontSize : 9, marginBottom : 1}}><MaterialIcons name='person' size={10} /> Contribuable : <Text style={{ fontWeight : "800"}}>Alex bat</Text></Text>
+                      <Text style={{...style_s.cardTitle, fontSize : 9, marginBottom : 1}}><MaterialIcons name='person' size={10} /> Contribuable : <Text style={{ fontWeight : "800"}}>{ item.name }</Text></Text>
                       {item.status == 1 ? (
                         <MaterialIcons name="done-all" size={16} />
                       ) : (
@@ -152,7 +152,7 @@ const ListInvoice = ({ item, DeletedP = 0 }) => {
                   <View style={style_s.DigActions}>
                     <View>
                       <View><Text style={{ fontSize: 12 }}>N° Stand ou Plaque </Text></View>
-                      <View><Text style={{ fontSize : 12, fontWeight : "800"}}>{item?.contribuantId}</Text></View>
+                      <View><Text style={{ fontSize : 12, fontWeight : "800"}}>{item?.numero}</Text></View>
                     </View>
                     <View>
                       <MaterialIcons name="storefront" size={24} color="black" />
@@ -162,7 +162,7 @@ const ListInvoice = ({ item, DeletedP = 0 }) => {
                   <View style={style_s.DigActions}>
                     <View>
                       <View><Text style={{ fontSize: 12 }}>Contribuable </Text></View>
-                      <View><Text style={{ fontSize : 12, fontWeight : "800"}}>{item?.contribuantId}</Text></View>
+                      <View><Text style={{ fontSize : 12, fontWeight : "800"}}>{item?.name}</Text></View>
                     </View>
                     <View>
                       <MaterialIcons name="person" size={24} color="black" />
@@ -194,7 +194,7 @@ const ListInvoice = ({ item, DeletedP = 0 }) => {
                   {/* QR CODE */}
                   <View style={{...style_s.DigActions, width : "80%"}}>
                     <View style={style_s.DigQr}>
-                      <QRCode value={item?.contribuantId} size={80} />
+                      <QRCode value={item?.numero} size={80} />
                     </View>
                     <View>
                       <Text style={{ fontWeight : "900", padding : 0}}>Montant</Text>
