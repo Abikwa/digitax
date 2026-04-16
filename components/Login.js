@@ -24,81 +24,87 @@ const Login = ({ navigation }) => {
 
       const Save = async () => {
         setUsererror("");
-        setSaveLoading(true)
-
+        
           if(Name && Tel && Adress){
+            if(Name.length < 5)
+              return Alert.alert("ERROR", "Votre Nom doit contenir minimum 5 caractères")
+            if(Tel.length != 9)
+              return Alert.alert("ERROR", "Votre Téléphone doit contenir 9 caractères seulement")
+            if(Adress.length < 3)
+              return Alert.alert("ERROR", "Votre Adresse doit contenir minimum 3 caractères")
 
-            const DB_SQL = await SQLite.openDatabaseAsync("digitax.db", { useNewConnection: true });
-            const first = await DB_SQL.getFirstAsync("SELECT name FROM sqlite_master WHERE type='table' AND name='table_users'")
-            
-            if(!first){
+            setSaveLoading(true)
+            try{
+              const DB_SQL = await SQLite.openDatabaseAsync("digitax.db", { useNewConnection: true });
+              const first = await DB_SQL.getFirstAsync("SELECT name FROM sqlite_master WHERE type='table' AND name='table_users'")
               
-              await DB_SQL.execAsync(`
-                PRAGMA journal_mode = WAL;
-
-                DROP TABLE IF EXISTS table_users;
-                DROP TABLE IF EXISTS table_taxes;
-                DROP TABLE IF EXISTS table_branches;
-
-                CREATE TABLE IF NOT EXISTS table_branches (
-                        id INTEGER PRIMARY KEY UNIQUE NOT NULL,
-                        name VARCHAR(80) NULL,
-                        type VARCHAR(20) NULL
-                      );
-
-                CREATE TABLE IF NOT EXISTS table_users (
-                        id CHAR(36) PRIMARY KEY  UNIQUE NOT NULL,
-                        actif INTEGER DEFAULT 1,
-                        name VARCHAR(150) NULL,
-                        adress VARCHAR(80) NULL,
-                        avatar VARCHAR(250) NULL,
-                        brancheId INTEGER NULL,
-                        profileId INTEGER NULL,
-                        password VARCHAR(20) NULL,
-                        tel VARCHAR(20) NULL,
-                        numero VARCHAR(20) NULL,
-                        createdAt DATETIME NULL
-                      );
-
-                CREATE TABLE IF NOT EXISTS table_taxes (
-                      id CHAR(36) PRIMARY KEY  UNIQUE NOT NULL,
-                      contribuantId VARCHAR(80) NULL,
-                      createdAt DATETIME NULL,
-                      price DOUBLE  NULL,
-                      status INTEGER NULL DEFAULT 0 );
-                `);
-
-            }
-            
-            const firstRow = await DB_SQL.getFirstAsync("SELECT count(*) as count FROM table_users")
-            
-            if(firstRow.count){
-              Alert.alert('Synchroniser', 'Actualiser certaines données sur votre appareil svp!', [
+              if(!first){
                 
-                {text: 'Oui actualiser', onPress: async() => {
+                await DB_SQL.execAsync(`
+                  PRAGMA journal_mode = WAL;
+
+                  DROP TABLE IF EXISTS table_users;
+                  DROP TABLE IF EXISTS table_taxes;
+                  DROP TABLE IF EXISTS table_branches;
+
+                  CREATE TABLE IF NOT EXISTS table_branches (
+                          id INTEGER PRIMARY KEY UNIQUE NOT NULL,
+                          name VARCHAR(80) NULL,
+                          type VARCHAR(20) NULL
+                        );
+
+                  CREATE TABLE IF NOT EXISTS table_users (
+                          id CHAR(36) PRIMARY KEY  UNIQUE NOT NULL,
+                          actif INTEGER DEFAULT 1,
+                          name VARCHAR(150) NULL,
+                          adress VARCHAR(80) NULL,
+                          avatar VARCHAR(250) NULL,
+                          brancheId INTEGER NULL,
+                          profileId INTEGER NULL,
+                          password VARCHAR(20) NULL,
+                          tel VARCHAR(20) NULL,
+                          numero VARCHAR(20) NULL,
+                          createdAt DATETIME NULL
+                        );
+
+                  CREATE TABLE IF NOT EXISTS table_taxes (
+                        id CHAR(36) PRIMARY KEY  UNIQUE NOT NULL,
+                        contribuantId VARCHAR(80) NULL,
+                        createdAt DATETIME NULL,
+                        price DOUBLE  NULL,
+                        status INTEGER NULL DEFAULT 0 );
+                  `);
+              }
+              
+              const firstRow = await DB_SQL.getFirstAsync("SELECT count(*) as count FROM table_users")
+
+              if(firstRow.count == 0){
+                Alert.alert('Synchroniser', 'Actualiser certaines données sur votre appareil svp!', [
                   
-                  const id = uuidv4()
-                  await DB_SQL.runAsync(`INSERT OR REPLACE INTO table_users 
-                    (id, name, password, tel, adress, createdAt)
-                    values (?, ?, ?, ?, ?, ?)`, 
-                    id, Name, '123', Tel, Adress, new Date()?.toISOString()
-                  );
+                  {text: 'Ok actualiser', onPress: async() => {
+                    
+                    const id = uuidv4()
+                    await DB_SQL.runAsync(`INSERT OR REPLACE INTO table_users 
+                      (id, name, password, tel, adress, createdAt)
+                      values (?, ?, ?, ?, ?, ?)`, 
+                      id, Name, '123', Tel, Adress, new Date()?.toISOString()
+                    );
 
-                  await AsyncStorage.setItem('Id', id)
-                  await AsyncStorage.setItem('Name', Name)
-                  await AsyncStorage.setItem('Tel', Tel+"")
-                  await AsyncStorage.setItem('Profile', "Collecteur")
-                  // await AsyncStorage.setItem('Avatar', '')
-                  await AsyncStorage.setItem('Branche', "")
-
-                  setSaveLoading(false)
-                   
-                  navigation.replace("template", { Profile : "Collecteur", Name : Name, Tel : Tel, Avatar : null, Branche : "Marché Lufungula" })
-                }},
-              ]);
+                    await AsyncStorage.setItem('Id', id)
+                    await AsyncStorage.setItem('Name', Name)
+                    await AsyncStorage.setItem('Tel', Tel+"")
+                    await AsyncStorage.setItem('Profile', "Collecteur")
+                    await AsyncStorage.setItem('Branche', "")
+                    setSaveLoading(false)
+                    
+                    navigation.replace("template", { Profile : "Collecteur", Name : Name, Tel : Tel, Avatar : null, Branche : "Marché Lufungula" })
+                  }},
+                ]);
+              }
+            }catch(erro){
+              setSaveLoading(false)
+              Alert.alert("ERROR", erro)
             }
-
-            
         }else {
           setSaveLoading(false)
           Alert.alert('Validation', "Téléphone et  mot de passe obligatoire!")
