@@ -14,8 +14,7 @@ const Text_ = [
   'Contribuables et collecteurs participent ensemble à la croissance et au développement des communautés locales',
   'Chaque opération se fait en quelques secondes, sans papier ni complication.'
 ],  Image_ = [
-  require("./../assets/1.jpg"), 
-  require("./../assets/2.png"),
+  require("./../assets/1.jpg"),
   require("./../assets/3.jpg"),
   require("./../assets/5.png"),
   require("./../assets/4.jpg")
@@ -38,11 +37,6 @@ const About = ({ navigation }) => {
   const autoplayInterval = useRef(null);
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  const getProfile_ = async () => {
-      const timer = setTimeout(getProfile, 3000);
-      return () => clearTimeout(timer);
-    }
 
     const Local_ = async() => {
       let Name = await AsyncStorage.getItem('Name')
@@ -118,12 +112,22 @@ const About = ({ navigation }) => {
     }
   };
 
+  const getProfil_ = () =>{
+    const timer = setTimeout(() => {
+        getProfile()
+      }, 3000);
+      return () => clearTimeout(timer);
+  }
+
   // Gestion du changement de slide
   useEffect(() => {
     Local_()
     startZoomAnimation();
-    if(Students?.length == 0)
-      getProfile_()
+    if(Students.length == 0){
+      setLoarding(true)
+      getProfil_()
+    }
+    
     if (autoplay) {
       startAutoplay();
     } else {
@@ -163,7 +167,7 @@ const About = ({ navigation }) => {
                   <Text style={styles.buttonText}>{Name?.slice(0, 4)}, Commencez</Text>
                 </TouchableOpacity>
               :  
-                <TouchableOpacity style={styles.button_} onPress={() => { setModalVisible(true); setAutoplay(false) }}>
+                <TouchableOpacity style={styles.button_} onPress={() => { setModalVisible(true); }}>
                   <Text style={styles.buttonText}>S'enregister</Text>
                 </TouchableOpacity>
             }
@@ -182,7 +186,7 @@ const About = ({ navigation }) => {
                           style={{ width: 120, height: 120, borderRadius : 80 }}
                           source={ require("./../assets/icon.png")}
                       />
-                   <Text style={{ color : "red", fontWeight : "600", fontSize : 20, textAlign : "center"  }}>{"DIGI TAX"}</Text>
+                   <Text style={{ color : "red", fontWeight : "600", fontSize : 20, textAlign : "center"  }}>{"DIGITAX"}</Text>
                 </View>
                 <ActivityIndicator  size={"large"} color={"red" } /> 
               
@@ -248,7 +252,6 @@ const About = ({ navigation }) => {
                     
                       <Login navigation={navigation} />
                     <Pressable
-                        style={[styles.button]}
                         onPress={() =>{ setModalVisible(false); setAutoplay(true) }}>
                         <Text style={styles.textStyle}>Fermer</Text>
                     </Pressable>
