@@ -128,8 +128,6 @@ const Recette = () => {
               [start.toISOString(), end.toISOString()]
             );
             
-            console.log(result);
-            
             let dataArray = Recettes
             let index = dataArray.findIndex(purchase => purchase.id == firstDate?.toLocaleDateString("en-GB"))
               if( index  >= 0 )
