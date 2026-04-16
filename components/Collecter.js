@@ -40,7 +40,7 @@ const Collecter = () => {
         }
   
         const result = await DB_SQL.getAllAsync(
-          `SELECT DISTINCT numero FROM table_users WHERE numero LIKE ? LIMIT 5`,
+          `SELECT DISTINCT id, numero, name FROM table_users WHERE numero LIKE ? LIMIT 5`,
           [`%${text}%`]
         );
         setStandResults(result);
@@ -53,6 +53,7 @@ const Collecter = () => {
 
     const selectStand = (item) => {
       setStand(item.numero);
+      setResponsable(item.name)
       setStandResults([]);
     }
 
@@ -105,7 +106,7 @@ const Collecter = () => {
           setCurrentData({
             id: id,
             stand : stand?.toUpperCase(),
-            responsable,
+            responsable : responsable || contr?.name || '',
             montant,
             date
           });
@@ -161,7 +162,7 @@ const Collecter = () => {
                               keyExtractor={(item, i) => i.toString()}
                               renderItem={({ item }) => (
                                 <TouchableOpacity onPress={() => selectStand(item)} style={styles.DigItem}>
-                                  <Text>{item.numero}</Text>
+                                  <Text>{item.numero} _ {item.name}</Text>
                                 </TouchableOpacity>
                               )}
                             />
