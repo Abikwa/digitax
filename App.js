@@ -58,7 +58,10 @@ const TabButton = (props) =>{
         <View style={{ ...styles.container, padding : 10, borderColor : focused ? "white" : "red"}} >
           <Animatable.View 
             ref={circleRef}
-            style={ styles.circle} />
+            style={ styles.circle}
+            useNativeDriver
+            renderToHardwareTextureAndroid
+            />
           <Ionicons name={ focused ? item.iconActivate : item.icon} size={30} color={"white"} />
         </View>
         <Animatable.Text ref={textRef} style={ styles.text}>{ item.label }</Animatable.Text>
