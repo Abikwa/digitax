@@ -35,6 +35,7 @@ const Login = ({ navigation }) => {
 
             setSaveLoading(true)
             try{
+              // await SQLite.deleteDatabaseSync("digitax.db")
               const DB_SQL = await SQLite.openDatabaseAsync("digitax.db", { useNewConnection: true });
               const first = await DB_SQL.getFirstAsync("SELECT name FROM sqlite_master WHERE type='table' AND name='table_users'")
               
@@ -64,15 +65,20 @@ const Login = ({ navigation }) => {
                           password VARCHAR(20) NULL,
                           tel VARCHAR(20) NULL,
                           numero VARCHAR(20) NULL,
-                          createdAt DATETIME NULL
+                          createdAt DATETIME NULL,
+                          updatedAt DATETIME NULL,
+                          status INTEGER NULL DEFAULT 0 
                         );
 
                   CREATE TABLE IF NOT EXISTS table_taxes (
                         id CHAR(36) PRIMARY KEY  UNIQUE NOT NULL,
-                        contribuantId VARCHAR(80) NULL,
+                        contribuantId CHAR(36) NULL,
+                        userId CHAR(36) NULL,
                         createdAt DATETIME NULL,
                         price DOUBLE  NULL,
-                        status INTEGER NULL DEFAULT 0 );
+                        numero VARCHAR(20) NULL,
+                        status INTEGER NULL DEFAULT 0 
+                      );
                   `);
               }
               
@@ -85,9 +91,9 @@ const Login = ({ navigation }) => {
                     
                     const id = uuidv4()
                     await DB_SQL.runAsync(`INSERT OR REPLACE INTO table_users 
-                      (id, name, password, tel, adress, createdAt)
-                      values (?, ?, ?, ?, ?, ?)`, 
-                      id, Name, '123', Tel, Adress, new Date()?.toISOString()
+                      (id, name, password, tel, adress, createdAt, updatedAt)
+                      values (?, ?, ?, ?, ?, ?, ?)`, 
+                      id, Name, '123', Tel, Adress, new Date()?.toISOString(), new Date()?.toISOString()
                     );
 
                     await AsyncStorage.setItem('Id', id)
