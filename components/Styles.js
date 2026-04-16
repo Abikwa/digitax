@@ -124,7 +124,7 @@ const Styles = StyleSheet.create({
       borderRadius: 16,
       backgroundColor: 'rgb(244, 53, 53)',
       borderColor : 'white',
-      borderWidth : 6,
+      borderWidth : 2,
       shadowColor: '#000',
       shadowOffset: {
         width: 0,
