@@ -60,8 +60,7 @@ const Collecter = () => {
       const date = new Date().toLocaleString();
       
       if(stand && montant){
-        setVisible(true)
-
+        
         setCurrentData({})
         
         try{
@@ -70,7 +69,38 @@ const Collecter = () => {
           const id = uuidv4()
           const date = new Date().toISOString();
 
-          await DB_SQL.runAsync("INSERT OR REPLACE INTO table_taxes (id, contribuantId, price, createdAt) values (?, ?, ?, ?)", id, stand?.toUpperCase(), parseFloat(montant), date);
+          let contribuantId = null;
+
+          const contr = await DB_SQL.getFirstAsync(
+              `SELECT id, name FROM table_users 
+              WHERE numero = ?`,
+              [stand]
+            );
+          if(contr){
+            contribuantId = contr.id
+            if(!responsable)
+            setResponsable(contr.name)
+            await DB_SQL.runAsync(`UPDATE table_users SET updatedAt = ? WHERE id = ?`, 
+              [new Date()?.toISOString(), contr.id]
+            );
+          }
+          else{
+            if(!responsable){
+              return Alert.alert("ERROR", "Le nom est obligatoire!")
+            }
+
+            const Id_ = uuidv4()
+            contribuantId = Id_
+            await DB_SQL.runAsync(`INSERT OR REPLACE INTO table_users 
+              (id, name, numero, password, createdAt, updatedAt)
+              values (?, ?, ?, ?, ?, ? )`, 
+              Id_, responsable, stand, '123', new Date()?.toISOString(), new Date()?.toISOString()
+            );
+          }
+
+          setVisible(true)
+
+          await DB_SQL.runAsync("INSERT OR REPLACE INTO table_taxes (id, contribuantId, numero, price, createdAt) values (?, ?, ?, ?, ?)", id, contribuantId, stand?.toUpperCase(), parseFloat(montant), date);
           
           setCurrentData({
             id: id,
@@ -107,8 +137,6 @@ const Collecter = () => {
                         source={ require("../assets/taxe.png")}
                       />        
                   </View>
-
-
 
                     {/* FORM */}
                     <Card style={styles.DigCard}>
