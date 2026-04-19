@@ -1,9 +1,11 @@
 import HoraireData from "./Recette";
 import Collecter from "./Collecter";
-import FicheData from "./ReportMember";
+import FicheMember from "./FicheMember";
+import Report from "./Report";
 
 export {
     HoraireData,
     Collecter,
-    FicheData
+    FicheMember,
+    Report
 }
