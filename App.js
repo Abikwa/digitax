@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import { FicheData, HoraireData, Collecter } from './components/index.js';
+import { FicheMember, HoraireData, Collecter, Report } from './components/index.js';
 import * as Animatable from 'react-native-animatable'
 import { StyleSheet, Text, TouchableOpacity, Image, View } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -16,7 +16,8 @@ const Stack = createStackNavigator();
 const TabArr = [
   { route : "Horaire", label : "Recettes", icon : 'home-outline', iconActivate : 'home-sharp', component : HoraireData},
   { route : "Preuve", label : "Collecter", icon : 'add-circle-outline', iconActivate : 'hourglass', component : Collecter},
-  { route : "Fiche", label : "Rapport", icon:'file-tray-full-outline', iconActivate : 'analytics', component : FicheData},
+  { route : "Fiche", label : "Contribu", icon:'people', iconActivate : 'cash', component : FicheMember},
+  { route : "Rapport", label : "Rapport", icon:'file-tray-full-outline', iconActivate : 'analytics', component : Report},
 ]
 
 const animate1 = { 0 : { scale : .5, translateY : 7 }, .92 : {translateY : -34}, 1 : { scale : 1.2, translateY : -24}}
@@ -55,13 +56,13 @@ const TabButton = (props) =>{
         duration={1000}
         style={ styles.container}
       >
-        <View style={{ ...styles.container, padding : 10, borderColor : focused ? "white" : "red"}} >
+        <View style={{ zIndex : 10000, padding : 10, borderColor : focused ? "white" : "red"}} >
           <Animatable.View 
             ref={circleRef}
             style={ styles.circle}
             useNativeDriver
             renderToHardwareTextureAndroid
-            />
+          />
           <Ionicons name={ focused ? item.iconActivate : item.icon} size={30} color={"white"} />
         </View>
         <Animatable.Text ref={textRef} style={ styles.text}>{ item.label }</Animatable.Text>
@@ -79,10 +80,11 @@ const PortailMenu = () => {
       tabBarStyle : {
         position : "absolute",
         height : 70,
-        bottom : 5,
-        right : 5,
-        left : 5,
-        borderRadius : 16,
+        bottom : 0,
+        right : 0,
+        left : 0,
+        borderTopLeftRadius : 16,
+        borderTopRightRadius : 16,
         backgroundColor : 'rgb(244, 53, 53)',
         borderTopWidth : 1
       }
