@@ -198,7 +198,6 @@ const Collecter = () => {
                           activeOutlineColor="rgb(220, 73, 0)"
                         />
 
-
                         <Button
                           mode="contained"
                           icon="content-save"
@@ -325,7 +324,6 @@ const Collecter = () => {
             </View>
             }
           }
-          refreshControl={<RefreshControl tintColor={"rgb(244, 53, 53)"} refreshing={ CollectLoarding }  onRefresh={ () => { onRefreshCollect()} } colors={["rgb(0, 0, 90)", "orange", "black", "red", "green"]} />}
           style={{  flex : 1, paddingTop : 10 }}
         />
       </Provider>
