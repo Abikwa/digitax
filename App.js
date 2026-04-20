@@ -15,8 +15,8 @@ const Stack = createStackNavigator();
 
 const TabArr = [
   { route : "Horaire", label : "Recettes", icon : 'home-outline', iconActivate : 'home-sharp', component : HoraireData},
-  { route : "Preuve", label : "Collecter", icon : 'add-circle-outline', iconActivate : 'hourglass', component : Collecter},
-  { route : "Fiche", label : "Contribu", icon:'people', iconActivate : 'cash', component : FicheMember},
+  { route : "Preuve", label : "Ticket", icon : 'add-circle-outline', iconActivate : 'hourglass', component : Collecter},
+  { route : "Fiche", label : "Contribuable", icon:'people', iconActivate : 'cash', component : FicheMember},
   { route : "Rapport", label : "Rapport", icon:'file-tray-full-outline', iconActivate : 'analytics', component : Report},
 ]
 
