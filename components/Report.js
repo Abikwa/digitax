@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Alert, Dimensions } from 'react-native';
 import { TextInput, Button, ActivityIndicator, Text } from 'react-native-paper';
 import * as SQLite from 'expo-sqlite';
 import * as Print from 'expo-print';
@@ -7,6 +7,9 @@ import * as FileSystem from 'expo-file-system';
 import { Asset } from 'expo-asset';
 import ModalReport from './ModalReport';
 import { Ionicons } from '@expo/vector-icons';
+import SelectDropdown from 'react-native-select-dropdown';
+
+const { width } = Dimensions.get("screen");
 
 const db = SQLite.openDatabaseSync('digitax.db');
 const PAGE_SIZE = 3;
@@ -22,6 +25,7 @@ const Report = () => {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [Condition_, setCondition_] = useState(false);
   const [Date_, setDate_] = useState(false);
   const [DateN_, setDateN_] = useState(new Date());
   const [loading, setLoading] = useState(false);
@@ -36,10 +40,8 @@ const Report = () => {
   }
 
   const fetchData = async (pageNumber = 1, date = new Date(), reset = false) => {
-    // if (loading) return;
     setLoading(true);
   try{
-
       const start = new Date(date);
       start.setHours(0, 0, 0, 0);
 
@@ -48,7 +50,7 @@ const Report = () => {
       
       const offset = (pageNumber - 1) * PAGE_SIZE;
 
-      const query = search ?  `
+      let query = search ?  `
         SELECT 
           u.id,
           u.name,
@@ -59,10 +61,8 @@ const Report = () => {
           ON t.contribuantId = u.id
           AND t.createdAt BETWEEN ? AND ?
           WHERE u.numero IS NOT NULL
-          AND u.numero LIKE ?
-        ORDER BY u.numero ASC
-        LIMIT ? 
-      ` : `SELECT 
+          AND u.numero LIKE ? ` 
+      : `SELECT 
           u.id,
           u.name,
           u.numero,
@@ -71,10 +71,12 @@ const Report = () => {
         LEFT JOIN table_taxes t
           ON t.contribuantId = u.id
           AND t.createdAt BETWEEN ? AND ?
-        WHERE u.numero IS NOT NULL
-        ORDER BY u.numero ASC
-        LIMIT ? OFFSET ?
-      `;
+        WHERE u.numero IS NOT NULL `;
+
+      if(Condition_)
+        query += ` AND t.price ${ Condition_ } `
+
+      query += search ? ` ORDER BY u.numero ASC LIMIT ? ` : ` ORDER BY u.numero ASC LIMIT ? OFFSET ? ` 
       
       const result = search ?
        await db.getAllAsync(query, [start.toISOString(), end.toISOString(), `%${search}%`, PAGE_SIZE])
@@ -221,6 +223,28 @@ const Report = () => {
             />
           }        
         />
+        <View>
+          <SelectDropdown
+              data={ [{ id : 1, label : 'Montant' }, { id : ' IS NOT NULL ', label : ' > 0'}, { id : ' IS NULL ', label : ' = 0'}] }
+              onSelect={ async(selectedItem, index) => {
+                if(selectedItem.id == 1)
+                  setCondition_(false)
+                else
+                  setCondition_(selectedItem.id)
+                fetchData(0, DateN_, true)
+              }}
+
+              defaultButtonText={" Montant " }
+              buttonTextStyle={{ color : "rgba(0, 0, 11, 1), 1)", fontSize : 11 }}
+              buttonTextAfterSelection={(selectedItem, index) => {
+                  return selectedItem.label
+              }}
+              rowTextForSelection={(item, index) => {
+                  return item?.label
+              }}
+              buttonStyle={{ display : 'flex', width: (width * 20)/100, height : 30, backgroundColor : "white", borderWidth : 1, borderRadius:10, borderColor : 'red'}}
+          />
+        </View>
         <TouchableOpacity style={{   display : 'flex', marginTop : 5  }} onPress={ () => { setDate_(!Date_) }}>
           <Text style={{ color : "white", fontWeight : "700", backgroundColor : 'rgb(224, 55, 55)', padding : 8, borderRadius : 10}}>{ new Date(DateN_)?.toLocaleDateString("en-GB")}</Text>
         </TouchableOpacity>
