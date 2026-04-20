@@ -6,13 +6,14 @@ import {
   Modal,
   StyleSheet,
   Pressable,
-  TextInput,
   Dimensions,
-  RefreshControl
+  RefreshControl,
+  Alert
 } from "react-native";
+import { TextInput } from "react-native-paper";
 import * as SQLite from 'expo-sqlite'
 import { Text, Avatar } from "react-native-paper";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const screenHeight = Dimensions.get("window").height;
@@ -23,6 +24,8 @@ const FicheMember = () => {
   const [selected, setSelected] = useState(null);
   const [visible, setVisible] = useState(false);
   const [Loading, setLoading] = useState(false);
+  const [Add, setAdd] = useState(false);
+  const [Numero, setNumero] = useState("");
   const [search, setSearch] = useState("");
   const [Users, setUsers] = useState([]);
   const [Taxes, setTaxes] = useState([]);
@@ -43,22 +46,76 @@ const FicheMember = () => {
 
   const getUsers = async() => {
     setLoading(true)
+    setAdd(false)
     const DB_SQL = await SQLite.openDatabaseAsync("digitax.db", { useNewConnection: true });
 
     const id = await AsyncStorage.getItem("Id")
     const result = await DB_SQL.getAllAsync(
-      `SELECT id, name, updatedAt FROM table_users WHERE id != ? LIMIT 50`,
+      `SELECT id, name, numero, updatedAt FROM table_users WHERE id != ?  AND numero IS NOT NULL LIMIT 50`,
       [id]
     );
     setUsers(result)
     setLoading(false)
   };
 
+  const getUsers_ = async(val) => {
+    
+    setSearch(val)
+    if(val?.length % 2 == 0){
+      // setLoading(true)
+      const DB_SQL = await SQLite.openDatabaseAsync("digitax.db", { useNewConnection: true });
+      const id = await AsyncStorage.getItem("Id")
+      const result = await DB_SQL.getAllAsync(
+        `SELECT id, name, numero, updatedAt FROM table_users WHERE id != ? AND numero LIKE ? AND name IS NOT NULL LIMIT 50 ORDER BY name ASC`,
+        [id, `%${val}%`]
+      );
+      setUsers(result)
+      setLoading(false)
+    }
+  }
+
+
+    const saveData = async() => {
+      const date = new Date().toLocaleString();
+
+      if(Numero?.length > 1){   
+        
+        try{
+          const DB_SQL = await SQLite.openDatabaseAsync("digitax.db", { useNewConnection: true });
+          
+          const id = uuidv4()
+          const date = new Date().toISOString();
+          const contr = await DB_SQL.getFirstAsync(
+              `SELECT id, name FROM table_users 
+              WHERE numero = ?`,
+              [Numero]
+            );
+          if(contr){
+            setNumero("");
+            await DB_SQL.runAsync(`UPDATE table_users SET updatedAt = ? WHERE id = ?`, 
+              [new Date()?.toISOString(), contr.id]
+            );
+          }
+          else{
+            const Id_ = uuidv4()
+            await DB_SQL.runAsync(`INSERT OR REPLACE INTO table_users 
+              (id, name, numero, createdAt, updatedAt)
+              values (?, ?, ?, ?, ? )`, 
+              Id_, Numero, Numero?.toUpperCase(), new Date()?.toISOString(), new Date()?.toISOString()
+            );
+          }
+          setAdd(!Add)
+          setNumero("");
+        }catch(err){
+          Alert.alert('Error', err);          
+        }
+      }else
+        Alert.alert("ERROR", 'Stand ou Plaque, Minimum 2 caractères requis')
+    };
+
   const filtered = Users.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
-
-  // const total = selected?.taxes?.reduce((s, t) => s + t.montant, 0);
 
   useEffect(() => {
     getUsers()
@@ -73,7 +130,7 @@ const FicheMember = () => {
       <View style={styles.taxLeft}>
         <Text style={styles.taxRef}>{item.id?.slice(0, 8)?.toUpperCase()}</Text>
         <Text style={styles.taxMeta}>
-          Stand _ Plaque  • <Text style={{ fontWeight : '900'}}>{item.numero}</Text>
+          Stand _ Plaque  •• <Text style={{ fontWeight : '900'}}>{item.numero}</Text>
         </Text>
       </View>
 
@@ -103,7 +160,7 @@ const FicheMember = () => {
         />
 
         <View style={{ flex: 1, marginStart : 2 }}>
-          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.name}>{item.name} <Text style={{ color : 'rgb(222, 82, 82)', fontSize : 11, fontWeight : '700'}}>{ item.numero }</Text> </Text>
           <Text style={styles.sub}>
             Dernière opération • { new Date()?.toLocaleDateString("en-GB")}
           </Text>
@@ -119,15 +176,37 @@ const FicheMember = () => {
     <View style={styles.container}>
 
       {/* ================= SEARCH (COMPACT) ================= */}
-      <View style={styles.searchBox}>
-        <MaterialIcons name="search" size={18} color="#888" />
-        <TextInput
-          placeholder="Rechercher..."
-          placeholderTextColor="#999"
-          value={search}
-          onChangeText={setSearch}
-          style={styles.searchInput}
+      <View style={{ flexDirection: "row", alignItems: "center", display : Add ? 'none' : 'flex' }}>
+        <View style={styles.searchBox}>
+          <MaterialIcons name="search" size={18} color="#888" />
+          <TextInput
+            placeholder="Rechercher..."
+            placeholderTextColor="#999"
+            // value={search}
+            onChangeText={(v) => getUsers_(v)}
+            style={styles.searchInput}
+          />
+        </View>
+        <View style={{ flexDirection: "row", alignItems : "center", paddingStart : 10}}>
+          <TouchableOpacity onPress={() => setAdd(!Add) }><Text><Ionicons name="add-circle" size={30} color={'red'} /></Text></TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={{ flexDirection: "row", alignItems: "center", display : Add ? 'flex' : 'none', marginBottom : 10 }}>
+        <View style={{ width : '70%' }}>
+          <TextInput
+            label="N° Stand Plaque"
+            mode="outlined"
+            style={{ overflow : "hidden", height : 40, backgroundColor : 'white'}} 
+            onChangeText={ async (val) => { setNumero(val) }}
+            left={<TextInput.Icon icon="storefront" color={"red"} size={15} />}
+            activeOutlineColor="rgb(220, 73, 0)"
+            outlineColor="#ccc"
         />
+        </View>
+        <View style={{ flexDirection: "row", alignItems : "center", paddingStart : 10 }}>
+          <TouchableOpacity onPress={() => saveData() } style={{ backgroundColor : "rgb(220, 73, 0)", borderRadius : 16, color : 'white', padding: 5 }}><Text style={{ color : 'white', paddingEnd : 10}}><Ionicons name="add-circle-outline" size={20} color={'white'} /><Text style={{ color : 'white'}}>Ajouter</Text></Text></TouchableOpacity>
+        </View>
       </View>
 
       {/* LIST */}
@@ -232,7 +311,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,   // ⬅️ réduit volontairement
     borderRadius: 12,
     marginBottom: 10,
-    elevation: 2
+    elevation: 2,
+    width : "80%"
   },
 
   searchInput: {
@@ -240,6 +320,8 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: "#222",
+    height : 30,
+    backgroundColor : 'white',
     paddingVertical: 0   // ⬅️ réduit hauteur input
   },
 
