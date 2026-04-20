@@ -15,6 +15,8 @@ import * as SQLite from 'expo-sqlite'
 import { Text, Avatar } from "react-native-paper";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -74,12 +76,11 @@ const FicheMember = () => {
     }
   }
 
-
     const saveData = async() => {
       const date = new Date().toLocaleString();
 
-      if(Numero?.length > 1){   
-        
+      if(Numero?.length > 1){
+
         try{
           const DB_SQL = await SQLite.openDatabaseAsync("digitax.db", { useNewConnection: true });
           
@@ -90,11 +91,20 @@ const FicheMember = () => {
               WHERE numero = ?`,
               [Numero]
             );
+
+          let newUser = {}
+
           if(contr){
             setNumero("");
             await DB_SQL.runAsync(`UPDATE table_users SET updatedAt = ? WHERE id = ?`, 
               [new Date()?.toISOString(), contr.id]
             );
+            newUser = {
+              id: contr.id,
+              name: contr.name,
+              numero: Numero?.toUpperCase(),
+              updatedAt : new Date()?.toISOString()
+            };
           }
           else{
             const Id_ = uuidv4()
@@ -103,10 +113,20 @@ const FicheMember = () => {
               values (?, ?, ?, ?, ? )`, 
               Id_, Numero, Numero?.toUpperCase(), new Date()?.toISOString(), new Date()?.toISOString()
             );
+            newUser = {
+              id: Id_,
+              name: Numero,
+              numero: Numero?.toUpperCase(),
+              updatedAt : new Date()?.toISOString()
+            };
           }
-          setAdd(!Add)
+
+          setUsers((prev) => [newUser, ...prev]);
+          
+          setAdd(false)
           setNumero("");
         }catch(err){
+          console.log(err);
           Alert.alert('Error', err);          
         }
       }else
@@ -198,7 +218,7 @@ const FicheMember = () => {
             label="N° Stand Plaque"
             mode="outlined"
             style={{ overflow : "hidden", height : 40, backgroundColor : 'white'}} 
-            onChangeText={ async (val) => { setNumero(val) }}
+            onChangeText={ setNumero }
             left={<TextInput.Icon icon="storefront" color={"red"} size={15} />}
             activeOutlineColor="rgb(220, 73, 0)"
             outlineColor="#ccc"
