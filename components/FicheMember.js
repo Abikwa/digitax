@@ -105,6 +105,7 @@ const FicheMember = () => {
               numero: Numero?.toUpperCase(),
               updatedAt : new Date()?.toISOString()
             };
+            setUsers((prev) => prev.filter(user => user.id !== contr.id));
           }
           else{
             const Id_ = uuidv4()
@@ -182,7 +183,7 @@ const FicheMember = () => {
         <View style={{ flex: 1, marginStart : 2 }}>
           <Text style={styles.name}>{item.name} <Text style={{ color : 'rgb(222, 82, 82)', fontSize : 11, fontWeight : '700'}}>{ item.numero }</Text> </Text>
           <Text style={styles.sub}>
-            Dernière opération • { new Date()?.toLocaleDateString("en-GB")}
+            Dernière opération • { new Date(item.updatedAt)?.toLocaleDateString("en-GB")}
           </Text>
         </View>
 
