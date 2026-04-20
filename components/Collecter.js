@@ -40,7 +40,7 @@ const Collecter = () => {
         }
   
         const result = await DB_SQL.getAllAsync(
-          `SELECT DISTINCT id, numero, name FROM table_users WHERE numero LIKE ? LIMIT 5`,
+          `SELECT DISTINCT id, numero, name FROM table_users WHERE numero LIKE ? ORDER BY numero ASC LIMIT 5`,
           [`%${text}%`]
         );
         setStandResults(result);
@@ -130,7 +130,7 @@ const Collecter = () => {
                 <View style={styles.DigContainer}>
 
                   <View style={{ backgroundColor: '#eed', padding : 10, alignItems : 'center' }}>
-                    <View><Text style={{ fontWeight : "800", fontSize : 24}}>Nouvelle collecte</Text></View>
+                    <View><Text style={{ fontWeight : "800", fontSize : 24}}>Nouveau ticket</Text></View>
                     <Text style={{ color : "red", fontWeight : "600", fontSize : 14, textAlign : "center"  }}>{ 'COMMUNE DE LINGWALA' }</Text>
                     <View><Text style={{ fontSize : 12,  letterSpacing : 2, marginBottom : 20}}>Saisie rapide des taxes journalieres </Text></View>
                     <Image
