@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import { TextInput, Button, ActivityIndicator, Text } from 'react-native-paper';
 import * as SQLite from 'expo-sqlite';
 import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
 import { Asset } from 'expo-asset';
+import ModalReport from './ModalReport';
+import { Ionicons } from '@expo/vector-icons';
 
 const db = SQLite.openDatabaseSync('digitax.db');
 const PAGE_SIZE = 3;
@@ -14,51 +16,87 @@ const COLORS = {
   primar : '#dd5757',
   background: '#FFF5F5'
 };
+const dat_ = new Date()
 
 const Report = () => {
-  let dat = new Date()
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [Date, setDate] = useState(dat);
+  const [Date_, setDate_] = useState(false);
+  const [DateN_, setDateN_] = useState(new Date());
   const [loading, setLoading] = useState(false);
 
-  const fetchData = async (pageNumber = 1, reset = false ) => {
-    if (loading) return;
-    setLoading(true);
 
-    const offset = (pageNumber - 1) * PAGE_SIZE;
-
-    const query = `
-      SELECT 
-        u.id,
-        u.name,
-        u.numero,
-        t.price
-      FROM table_users u
-      LEFT JOIN table_taxes t
-        ON t.contribuantId = u.id
-        AND u.numero LIKE ?
-        AND DATE(t.createdAt) = DATE(?)
-      ORDER BY u.numero ASC
-      LIMIT ? OFFSET ?
-    `;
-
-    const result = await db.getAllAsync(query, [`%${search}%`, Date, PAGE_SIZE, offset]);
-
-    if (reset) {
-      setData(result);
-      setPage(2);
-    } else {
-      setData(prev => [...prev, ...result]);
-      setPage(prev => prev + 1);
+  const onCloseReport = async (first = null) => {
+    if(first){
+      setDateN_(first)
+      fetchData(1, first, true)
     }
+    setDate_(false)
+  }
 
-    setLoading(false);
+  const fetchData = async (pageNumber = 1, date = new Date(), reset = false) => {
+    // if (loading) return;
+    setLoading(true);
+  try{
+
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+      
+      const offset = (pageNumber - 1) * PAGE_SIZE;
+
+      const query = search ?  `
+        SELECT 
+          u.id,
+          u.name,
+          u.numero,
+          t.price
+        FROM table_users u
+        LEFT JOIN table_taxes t
+          ON t.contribuantId = u.id
+          AND t.createdAt BETWEEN ? AND ?
+          WHERE u.numero IS NOT NULL
+          AND u.numero LIKE ?
+        ORDER BY u.numero ASC
+        LIMIT ? 
+      ` : `SELECT 
+          u.id,
+          u.name,
+          u.numero,
+          t.price
+        FROM table_users u
+        LEFT JOIN table_taxes t
+          ON t.contribuantId = u.id
+          AND t.createdAt BETWEEN ? AND ?
+        WHERE u.numero IS NOT NULL
+        ORDER BY u.numero ASC
+        LIMIT ? OFFSET ?
+      `;
+      
+      const result = search ?
+       await db.getAllAsync(query, [start.toISOString(), end.toISOString(), `%${search}%`, PAGE_SIZE])
+      : await db.getAllAsync(query, [ start.toISOString(), end.toISOString(), PAGE_SIZE, offset])
+      
+      if (reset) {
+        setData(result);
+        setPage(2);
+      } else {
+        setData(prev => [...prev, ...result]);
+        setPage(prev => prev + 1);
+      }
+
+      setLoading(false);
+    }catch(error){
+      Alert.alert("ERROR",error);
+      setLoading(false)
+    }
   };
 
   useEffect(() => {
-    fetchData(1, true);
+    fetchData(1, new Date(), true);
   }, [search]);
 
   const handlePrint = async () => {
@@ -67,7 +105,7 @@ const Report = () => {
     const logo = Asset.fromModule(require('../assets/icon.png'))
     
     let mount = data.reduce((sum, item) => {
-        return sum + (item.price || 0);
+        return sum + (item?.price || 0);
       }, 0);
 
     const html = `
@@ -89,6 +127,7 @@ const Report = () => {
                 <div style="font-size : 20; font-weight : 800; color:${COLORS.primary}">DigiTax</div>
                 <div style="font-size : 18; font-weight : 800;">Service National de Taxe</div>
                 <div style="font-size : 18; font-weight : 800;  color:${COLORS.primary}">Commune de Lingwala</div>
+                <div style="font-size : 18; font-weight : 800;  color:${COLORS.primar}">Tickets du ${ new Date(DateN_)?.toLocaleDateString("en-GB") }</div>
               </center>
             </div>
 
@@ -99,25 +138,25 @@ const Report = () => {
           </div>
           <center>
             <table style="width:98%; margin-top : 10px; border-collapse: collapse;">
-              <tr style="background:${COLORS.primary}; color:white">
-                <th style="width : 8%; border: 1px solid #4b3737;">Num</th>
-                <th style="width : 45%; border: 1px solid #4b3737;">Nom</th>
-                <th style="width : 25%; border: 1px solid #4b3737;">N° Stand</th>
-                <th style="width : 20%; border: 1px solid #4b3737;">Prix</th>
+              <tr style="background:${COLORS.primary}; color:white;">
+                <th style="width : 8%; border: 1px solid #ddd2d2;">Num</th>
+                <th style="width : 45%; border: 1px solid #ddd2d2;">Nom</th>
+                <th style="width : 25%; border: 1px solid #ddd2d2;">N° Stand</th>
+                <th style="width : 20%; border: 1px solid #ddd2d2;">Montant</th>
               </tr>
               ${data.map((item, index) => `
                 <tr>
-                  <td style="width : 8%; border: 1px solid #4b3737;"> ${index+1}</td>
-                  <td style="width : 45%; border: 1px solid #4b3737;"> ${item.name}</td>
-                  <td style="width : 25%; border: 1px solid #4b3737;"> ${item.numero || ''}</td>
-                  <td style="width : 20%; border: 1px solid #4b3737;"> ${item.price || ''}${ item.price > 0 ? 'FC' : ''}</td>
+                  <td style="width : 8%; border: 1px solid #ddd2d2;"> ${index+1}</td>
+                  <td style="width : 45%; border: 1px solid #ddd2d2;"> ${item?.name}</td>
+                  <td style="width : 25%; border: 1px solid #ddd2d2;"> ${item?.numero || ''}</td>
+                  <td style="width : 20%; border: 1px solid #ddd2d2;"> ${item?.price || ''}${ item?.price > 0 ? 'FC' : ''}</td>
                 </tr>
               `).join('')}
-              <tr style="color:white">
-                <th style="width : 8%; border: 1px solid #4b3737;"></th>
-                <th style="width : 45%; border: 1px solid #4b3737;">Total</th>
-                <th style="width : 25%; border: 1px solid #4b3737;"></th>
-                <th style="width : 20%; border: 1px solid #4b3737;">${ mount?.toLocaleString() }FC</th>
+              <tr>
+                <td style="width : 8%; border: 1px solid #ddd2d2; font-weight : '700';"></td>
+                <td style="width : 45%; border: 1px solid #ddd2d2; font-weight : '700';">Total</td>
+                <td style="width : 25%; border: 1px solid #ddd2d2; font-weight : '700';"></td>
+                <td style="width : 20%; border: 1px solid #ddd2d2; font-weight : '700';">${ mount?.toLocaleString() }FC</td>
               </tr>
             </table>
           </center>
@@ -128,11 +167,11 @@ const Report = () => {
     await Print.printAsync({ html });
   };
 
-  const loadMore = () => fetchData(page);
+  const loadMore = () => fetchData(page, DateN_);
 
   const Footer = () => {
     let mount = data.reduce((sum, item) => {
-        return sum + (item.price || 0);
+        return sum + (item?.price || 0);
       }, 0);
 
     return(
@@ -147,7 +186,7 @@ const Report = () => {
         {loading && <ActivityIndicator style={{ marginVertical: 10 }} />}
 
         <View style={styles.actionRow}>
-          <Button mode="outlined" buttonColor={ COLORS.background } labelStyle={{ color : "black"}} onPress={() => fetchData(1, true)}>
+          <Button mode="outlined" buttonColor={ COLORS.background } labelStyle={{ color : "black"}} onPress={() => fetchData(1, DateN_, true)}>
             Précédent
           </Button>
 
@@ -182,39 +221,26 @@ const Report = () => {
             />
           }        
         />
-        <TextInput
-          label="YYY-MM-DD"
-          value={search}
-          onChangeText={setDate}
-          mode="outlined"
-          style={styles.input}
-          activeOutlineColor="rgb(220, 0, 0)"
-          value={Date}
-          right={
-            <TextInput.Icon
-              icon={ "magnify"}
-              color={"red"}
-              size={20}
-            />
-          }        
-        />
+        <TouchableOpacity style={{   display : 'flex', marginTop : 5  }} onPress={ () => { setDate_(!Date_) }}>
+          <Text style={{ color : "white", fontWeight : "700", backgroundColor : 'rgb(224, 55, 55)', padding : 8, borderRadius : 10}}>{ new Date(DateN_)?.toLocaleDateString("en-GB")}</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.headerRow}>
         <Text style={styles.headerText}>Nom</Text>
         <Text style={styles.headerText}>N° Stand</Text>
-        <Text style={styles.headerText}>Prix</Text>
+        <Text style={styles.headerText}>Montant</Text>
       </View>
 
       {/* LIST */}
       <FlatList
-        data={data}
+        data={data?.length > 1 ? data : []}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={styles.row}>
-            <Text style={styles.cell}>{item.name}</Text>
-            <Text style={styles.cell}>{item.numero}</Text>
-            <Text style={styles.cell}>{item.price}{ item.price > 0 ? 'FC' : ''}</Text>
+            <Text style={styles.cell}>{item?.name}</Text>
+            <Text style={styles.cell}>{item?.numero}</Text>
+            <Text style={styles.cell}>{item?.price}{ item?.price > 0 ? 'FC' : ''}</Text>
           </View>
         )}
         // onEndReached={loadMore}
@@ -223,6 +249,7 @@ const Report = () => {
         refreshControl={ <RefreshControl refreshing={ loading } onRefresh={ () =>  loadMore() } colors={["rgb(244, 53, 53)", "orange", "black", "red", "green"]} style={{ zIndex : 10000  }} /> }
       />
 
+      <ModalReport modalRefReport={Date_} onCloseReport={onCloseReport} />
     </View>
   );
 }
@@ -236,7 +263,7 @@ const styles = StyleSheet.create({
   input: {
     marginBottom: 10,
     height : 35,
-    width : '45%'
+    width : '48%'
   },
   headerRow: {
     flexDirection: 'row',
