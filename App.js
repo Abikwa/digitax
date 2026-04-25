@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { FicheMember, HoraireData, Collecter, Report } from './components/index.js';
 import * as Animatable from 'react-native-animatable'
-import { StyleSheet, Text, TouchableOpacity, Image, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, Image, View, Dimensions } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -12,6 +12,8 @@ import About from './components/About.js';
 
 const Tab = createBottomTabNavigator()
 const Stack = createStackNavigator();
+
+const { width, height } = Dimensions.get("screen");
 
 const TabArr = [
   { route : "Horaire", label : "Recettes", icon : 'home-outline', iconActivate : 'home-sharp', component : HoraireData},
@@ -79,12 +81,13 @@ const PortailMenu = () => {
       headerShadowVisible : false,
       tabBarStyle : {
         position : "absolute",
-        height : 70,
-        bottom : 0,
-        right : 0,
-        left : 0,
+        height : height <= 640 ? height * 0.145 : height * 0.09,
+        bottom : 5,
+        right : 5,
+        left : 5,
         borderTopLeftRadius : 16,
         borderTopRightRadius : 16,
+        borderRadius : 16,
         backgroundColor : 'rgb(244, 53, 53)',
         borderTopWidth : 1
       }
