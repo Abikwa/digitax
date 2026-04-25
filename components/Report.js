@@ -77,7 +77,7 @@ const Report = () => {
         query += ` AND t.price ${ Condition_ } `
 
       query += search ? ` ORDER BY u.numero ASC LIMIT ? ` : ` ORDER BY u.numero ASC LIMIT ? OFFSET ? ` 
-      
+
       const result = search ?
        await db.getAllAsync(query, [start.toISOString(), end.toISOString(), `%${search}%`, PAGE_SIZE])
       : await db.getAllAsync(query, [ start.toISOString(), end.toISOString(), PAGE_SIZE, offset])
