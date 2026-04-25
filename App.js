@@ -8,6 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as Animatable from 'react-native-animatable';
 import * as Font from 'expo-font'; // Import pour le chargement des polices
 import * as SplashScreen from 'expo-splash-screen'; // Import pour l'écran de démarrage
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Import de vos composants
 import { FicheMember, HoraireData, Collecter, Report } from './components/index.js';
@@ -115,40 +116,42 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator 
-        initialRouteName="About"
-        screenOptions={{ presentation: "transparentModal", headerStyle: { backgroundColor: 'rgb(244, 53, 53)' }, headerTintColor: 'white' }}
-      >
-        <Stack.Screen 
-          name="template" 
-          component={PortailMenu} 
-          options={({ navigation, route }) => ({  
-            title: (
-              <View style={styles.containerTitle}>
-                <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                  <Image
-                    style={styles.avatar}
-                    source={route.params?.Avatar ? { uri: route.params.Avatar } : require("./assets/avatar.png")}
-                  />
-                </TouchableOpacity>
-                <View style={{ marginLeft: 10 }}>
-                  <Text style={styles.textTitle}>{route.params?.Branche || "Chargement..."}</Text>
-                  <Text style={styles.subTitle}>{route.params?.Profile} {route.params?.Name?.toLowerCase()?.slice(0, 12)}</Text>
+    <SafeAreaView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Stack.Navigator 
+          initialRouteName="About"
+          screenOptions={{ presentation: "transparentModal", headerStyle: { backgroundColor: 'rgb(244, 53, 53)' }, headerTintColor: 'white' }}
+        >
+          <Stack.Screen 
+            name="template" 
+            component={PortailMenu} 
+            options={({ navigation, route }) => ({  
+              title: (
+                <View style={styles.containerTitle}>
+                  <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                    <Image
+                      style={styles.avatar}
+                      source={route.params?.Avatar ? { uri: route.params.Avatar } : require("./assets/avatar.png")}
+                    />
+                  </TouchableOpacity>
+                  <View style={{ marginLeft: 10 }}>
+                    <Text style={styles.textTitle}>{route.params?.Branche || "Chargement..."}</Text>
+                    <Text style={styles.subTitle}>{route.params?.Profile} {route.params?.Name?.toLowerCase()?.slice(0, 12)}</Text>
+                  </View>
                 </View>
-              </View>
-            ),
-            headerRight: () => (
-              <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginRight: 15 }}>
-                <Text style={styles.offlineText}><MaterialIcons name='cloud-off' size={14} /> Hors ligne</Text>
-              </TouchableOpacity>
-            ),
-          })}
-        />
-        <Stack.Screen name="About" component={About} options={{ headerShown: false }} />
-      </Stack.Navigator>
-      <StatusBar backgroundColor="rgb(244, 53, 53)" style='light' />
-    </NavigationContainer>
+              ),
+              headerRight: () => (
+                <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginRight: 15 }}>
+                  <Text style={styles.offlineText}><MaterialIcons name='cloud-off' size={14} /> Hors ligne</Text>
+                </TouchableOpacity>
+              ),
+            })}
+          />
+          <Stack.Screen name="About" component={About} options={{ headerShown: false }} />
+        </Stack.Navigator>
+        <StatusBar backgroundColor="rgb(244, 53, 53)" style='light' />
+      </NavigationContainer>
+    </SafeAreaView>
   );
 }
 
@@ -157,8 +160,9 @@ const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
     height: height <= 640 ? height * 0.12 : 70,
-    bottom: 10, right: 10, left: 10,
-    borderRadius: 20,
+    bottom: 2, right: 2, left: 2,
+    borderTopEndRadius: 16,
+    borderTopStartRadius: 16,
     backgroundColor: 'rgb(244, 53, 53)',
     borderTopWidth: 0,
     elevation: 5,
